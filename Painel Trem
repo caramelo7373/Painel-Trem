@@ -1,0 +1,384 @@
+-- Painel ADM Delta Executor (Com Jaula + Kick/Ban + Freeze/Unfreeze + Bring/Unbring + Ice/Unice + Notificação + RGB + Anúncio inicial)
+-- Feito por ChatGPT 🚀
+
+local player = game.Players.LocalPlayer
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PainelTremBala"
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Frame principal
+local Frame = Instance.new("Frame")
+local UIListLayout = Instance.new("UIListLayout")
+local Titulo = Instance.new("TextLabel")
+local SubTitulo = Instance.new("TextLabel")
+local Fechar = Instance.new("TextButton")
+local Minimizar = Instance.new("TextButton")
+local IconeReabrir = Instance.new("TextButton")
+local Pesquisa = Instance.new("TextBox")
+local JogadoresScroll = Instance.new("ScrollingFrame")
+local JogadoresLayout = Instance.new("UIListLayout")
+
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame.Size = UDim2.new(0, 320, 0, 480)
+Frame.Position = UDim2.new(0.05, 0, 0.25, 0)
+Frame.Active = true
+Frame.Draggable = true
+
+-- Título
+Titulo.Parent = Frame
+Titulo.Size = UDim2.new(1, -40, 0, 40)
+Titulo.Position = UDim2.new(0, 5, 0, 0)
+Titulo.BackgroundTransparency = 1
+Titulo.Text = "painel trem bala 🇧🇷"
+Titulo.TextColor3 = Color3.fromRGB(255, 255, 255)
+Titulo.TextScaled = true
+Titulo.Font = Enum.Font.SourceSansBold
+Titulo.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Subtítulo
+SubTitulo.Parent = Frame
+SubTitulo.Size = UDim2.new(1, -40, 0, 20)
+SubTitulo.Position = UDim2.new(0, 5, 0, 38)
+SubTitulo.BackgroundTransparency = 1
+SubTitulo.Text = "by: ChatGPT 🚀"
+SubTitulo.TextColor3 = Color3.fromRGB(255, 150, 255)
+SubTitulo.TextScaled = true
+SubTitulo.Font = Enum.Font.SourceSansItalic
+SubTitulo.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Botão Fechar
+Fechar.Parent = Frame
+Fechar.Size = UDim2.new(0, 30, 0, 30)
+Fechar.Position = UDim2.new(1, -35, 0, 5)
+Fechar.Text = "X"
+Fechar.TextColor3 = Color3.fromRGB(255, 50, 50)
+Fechar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Fechar.Font = Enum.Font.SourceSansBold
+Fechar.TextScaled = true
+Fechar.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- Botão Minimizar
+Minimizar.Parent = Frame
+Minimizar.Size = UDim2.new(0, 30, 0, 30)
+Minimizar.Position = UDim2.new(1, -70, 0, 5)
+Minimizar.Text = "🔽"
+Minimizar.TextColor3 = Color3.fromRGB(255, 255, 0)
+Minimizar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Minimizar.Font = Enum.Font.SourceSansBold
+Minimizar.TextScaled = true
+
+-- Botão Reabrir (🚀)
+IconeReabrir.Parent = ScreenGui
+IconeReabrir.Size = UDim2.new(0, 50, 0, 50)
+IconeReabrir.Position = UDim2.new(0.05, 0, 0.8, 0)
+IconeReabrir.Text = "🚀"
+IconeReabrir.TextScaled = true
+IconeReabrir.Visible = false
+IconeReabrir.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+IconeReabrir.TextColor3 = Color3.fromRGB(255, 255, 255)
+IconeReabrir.Font = Enum.Font.SourceSansBold
+IconeReabrir.Active = true
+IconeReabrir.Draggable = true
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(1, 0)
+corner.Parent = IconeReabrir
+
+local sombra = Instance.new("UIStroke")
+sombra.Thickness = 3
+sombra.Color = Color3.fromRGB(100, 100, 100)
+sombra.Parent = IconeReabrir
+
+-- Texto "trem bala" embaixo do ícone 🚀
+local TextoIcone = Instance.new("TextLabel")
+TextoIcone.Parent = IconeReabrir
+TextoIcone.Size = UDim2.new(1.2, 0, 0.4, 0)
+TextoIcone.Position = UDim2.new(0, -5, 1, 0)
+TextoIcone.BackgroundTransparency = 1
+TextoIcone.Text = "trem bala"
+TextoIcone.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextoIcone.Font = Enum.Font.SourceSansBold
+TextoIcone.TextScaled = true
+TextoIcone.Visible = false
+TextoIcone.ZIndex = 2
+
+local strokeTexto = Instance.new("UIStroke")
+strokeTexto.Thickness = 2
+strokeTexto.Color = Color3.fromRGB(0, 0, 0)
+strokeTexto.Parent = TextoIcone
+
+-- Minimizar/Reabrir
+local minimizado = false
+IconeReabrir.MouseButton1Click:Connect(function()
+    Frame.Visible = true
+    IconeReabrir.Visible = false
+    TextoIcone.Visible = false
+end)
+
+Minimizar.MouseButton1Click:Connect(function()
+    minimizado = not minimizado
+    if minimizado then
+        Frame.Visible = false
+        IconeReabrir.Visible = true
+        TextoIcone.Visible = true
+    else
+        Frame.Visible = true
+        IconeReabrir.Visible = false
+        TextoIcone.Visible = false
+    end
+end)
+
+-- Layout
+UIListLayout.Parent = Frame
+UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Caixa de pesquisa
+Pesquisa.Parent = Frame
+Pesquisa.Size = UDim2.new(1, -10, 0, 30)
+Pesquisa.Position = UDim2.new(0, 5, 0, 65)
+Pesquisa.PlaceholderText = "🔍 Buscar player..."
+Pesquisa.Text = ""
+Pesquisa.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Pesquisa.TextColor3 = Color3.fromRGB(255, 255, 255)
+Pesquisa.Font = Enum.Font.SourceSans
+Pesquisa.TextScaled = true
+
+-- Lista jogadores
+JogadoresScroll.Parent = Frame
+JogadoresScroll.Size = UDim2.new(1, -10, 1, -105)
+JogadoresScroll.Position = UDim2.new(0, 5, 0, 100)
+JogadoresScroll.BackgroundTransparency = 1
+JogadoresScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+JogadoresScroll.ScrollBarThickness = 6
+JogadoresScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+JogadoresScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+
+JogadoresLayout.Parent = JogadoresScroll
+JogadoresLayout.Padding = UDim.new(0, 5)
+JogadoresLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Notificação
+local function mostrarNotificacao(texto, cor)
+    local Notif = Instance.new("TextLabel")
+    Notif.Parent = ScreenGui
+    Notif.Text = texto
+    Notif.Size = UDim2.new(0, 250, 0, 40)
+    Notif.Position = UDim2.new(1, -260, 1, -60)
+    Notif.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Notif.TextColor3 = cor
+    Notif.Font = Enum.Font.SourceSansBold
+    Notif.TextScaled = true
+    Notif.BorderSizePixel = 0
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 10)
+    UICorner.Parent = Notif
+    game:GetService("TweenService"):Create(Notif, TweenInfo.new(0.5), {Position = UDim2.new(1, -260, 1, -110)}):Play()
+    task.delay(3, function()
+        Notif:Destroy()
+    end)
+end
+
+-- Guardar botões RGB
+local botoesRGB = {}
+local function criarBotao(nome, icone, callback, parent)
+    local Botao = Instance.new("TextButton")
+    Botao.Parent = parent
+    Botao.Text = icone .. " " .. nome
+    Botao.Size = UDim2.new(1, -5, 0, 28)
+    Botao.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Botao.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Botao.Font = Enum.Font.SourceSansBold
+    Botao.TextScaled = true
+    local stroke = Instance.new("UIStroke")
+    stroke.Parent = Botao
+    stroke.Thickness = 2
+    stroke.Color = Color3.fromRGB(0, 100, 255)
+    table.insert(botoesRGB, stroke)
+    Botao.MouseButton1Click:Connect(callback)
+end
+
+-- Loop RGB
+task.spawn(function()
+    local t = 0
+    while task.wait(0.1) do
+        t += 10
+        local r = math.sin(math.rad(t)) * 127 + 128
+        local g = math.sin(math.rad(t + 120)) * 127 + 128
+        local b = math.sin(math.rad(t + 240)) * 127 + 128
+        for _, stroke in ipairs(botoesRGB) do
+            stroke.Color = Color3.fromRGB(r, g, b)
+        end
+    end
+end)
+
+-- Jaula (travando player)
+local function criarJaula(targetPlayer)
+    if not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
+    local pos = targetPlayer.Character.HumanoidRootPart.Position
+
+    if workspace:FindFirstChild(targetPlayer.Name .. "_Jaula") then
+        workspace[targetPlayer.Name .. "_Jaula"]:Destroy()
+    end
+
+    local jaula = Instance.new("Model", workspace)
+    jaula.Name = targetPlayer.Name .. "_Jaula"
+
+    local tamanho, altura = 8, 10
+
+    local base = Instance.new("Part", jaula)
+    base.Size = Vector3.new(tamanho, 1, tamanho)
+    base.Position = pos + Vector3.new(0, -0.5, 0)
+    base.Anchored = true
+    base.Color = Color3.fromRGB(60, 60, 60)
+
+    local teto = base:Clone()
+    teto.Parent = jaula
+    teto.Position = pos + Vector3.new(0, altura, 0)
+
+    for i=-tamanho/2, tamanho/2, 2 do
+        for _, v in ipairs({
+            Vector3.new(i, altura/2, -tamanho/2),
+            Vector3.new(i, altura/2, tamanho/2),
+            Vector3.new(-tamanho/2, altura/2, i),
+            Vector3.new(tamanho/2, altura/2, i)
+        }) do
+            local barra = Instance.new("Part", jaula)
+            barra.Size = Vector3.new(0.3, altura, 0.3)
+            barra.Position = pos + v
+            barra.Anchored = true
+            barra.Color = Color3.fromRGB(200, 200, 200)
+        end
+    end
+
+    targetPlayer.Character:MoveTo(pos + Vector3.new(0, 2, 0))
+    if targetPlayer.Character:FindFirstChild("Humanoid") then
+        targetPlayer.Character.Humanoid.WalkSpeed = 0
+        targetPlayer.Character.Humanoid.JumpPower = 0
+    end
+    targetPlayer.Character.HumanoidRootPart.Anchored = true
+end
+
+local function removerJaula(targetPlayer)
+    if workspace:FindFirstChild(targetPlayer.Name .. "_Jaula") then
+        workspace[targetPlayer.Name .. "_Jaula"]:Destroy()
+    end
+    if targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") then
+        targetPlayer.Character.Humanoid.WalkSpeed = 16
+        targetPlayer.Character.Humanoid.JumpPower = 50
+    end
+    if targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        targetPlayer.Character.HumanoidRootPart.Anchored = false
+    end
+end
+
+-- Gelo (travando player)
+local function criarGelo(targetPlayer)
+    if not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
+    
+    if workspace:FindFirstChild(targetPlayer.Name .. "_Gelo") then
+        workspace[targetPlayer.Name .. "_Gelo"]:Destroy()
+    end
+
+    local gelo = Instance.new("Part", workspace)
+    gelo.Name = targetPlayer.Name .. "_Gelo"
+    gelo.Size = Vector3.new(6, 10, 6)
+    gelo.Position = targetPlayer.Character.HumanoidRootPart.Position
+    gelo.Anchored = true
+    gelo.Material = Enum.Material.Ice
+    gelo.Transparency = 0.3
+    gelo.Color = Color3.fromRGB(150, 220, 255)
+
+    targetPlayer.Character:MoveTo(gelo.Position + Vector3.new(0, 2, 0))
+    if targetPlayer.Character:FindFirstChild("Humanoid") then
+        targetPlayer.Character.Humanoid.WalkSpeed = 0
+        targetPlayer.Character.Humanoid.JumpPower = 0
+    end
+    targetPlayer.Character.HumanoidRootPart.Anchored = true
+end
+
+local function removerGelo(targetPlayer)
+    if workspace:FindFirstChild(targetPlayer.Name .. "_Gelo") then
+        workspace[targetPlayer.Name .. "_Gelo"]:Destroy()
+    end
+    if targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") then
+        targetPlayer.Character.Humanoid.WalkSpeed = 16
+        targetPlayer.Character.Humanoid.JumpPower = 50
+    end
+    if targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        targetPlayer.Character.HumanoidRootPart.Anchored = false
+    end
+end
+
+-- Painel por jogador
+local function criarPainelJogador(targetPlayer)
+    local FrameJogador = Instance.new("Frame")
+    FrameJogador.Parent = JogadoresScroll
+    FrameJogador.Name = targetPlayer.Name
+    FrameJogador.Size = UDim2.new(1, -5, 0, 0)
+    FrameJogador.BackgroundColor3 = Color3.fromRGB(90, 0, 140) -- Cor roxa 💜
+    FrameJogador.BorderSizePixel = 0
+    FrameJogador.AutomaticSize = Enum.AutomaticSize.Y
+    local Nome = Instance.new("TextLabel")
+    Nome.Parent = FrameJogador
+    Nome.Size = UDim2.new(1, -5, 0, 25)
+    Nome.Text = "👤 " .. targetPlayer.Name
+    Nome.TextColor3 = Color3.fromRGB(170, 0, 255)
+    Nome.Font = Enum.Font.SourceSansBold
+    Nome.TextScaled = true
+    Nome.BackgroundTransparency = 1
+    local AcoesLayout = Instance.new("UIGridLayout")
+    AcoesLayout.Parent = FrameJogador
+    AcoesLayout.CellSize = UDim2.new(0.5, -5, 0, 40)
+    AcoesLayout.CellPadding = UDim2.new(0, 4, 0, 4)
+
+    criarBotao("Kick", "👢", function()
+        if targetPlayer.Character then
+            task.delay(1, function()
+                if targetPlayer.Character then
+                    targetPlayer.Character:Destroy()
+                end
+                FrameJogador:Destroy()
+                mostrarNotificacao(targetPlayer.Name .. " foi kickado do server", Color3.fromRGB(255,200,0))
+            end)
+        end
+    end, FrameJogador)
+
+    criarBotao("Ban", "🚫", function()
+        if targetPlayer.Character then
+            task.delay(1, function()
+                if targetPlayer.Character then
+                    targetPlayer.Character:Destroy()
+                end
+                FrameJogador:Destroy()
+                targetPlayer.Parent = nil
+                mostrarNotificacao(targetPlayer.Name .. " foi banido do server", Color3.fromRGB(255,50,50))
+            end)
+        end
+    end, FrameJogador)
+
+    criarBotao("Jail", "🔒", function() criarJaula(targetPlayer) end, FrameJogador)
+    criarBotao("Unjail", "🔓", function() removerJaula(targetPlayer) end, FrameJogador)
+    criarBotao("Ice", "🧊", function() criarGelo(targetPlayer) end, FrameJogador)
+    criarBotao("Unice", "🔥", function() removerGelo(targetPlayer) end, FrameJogador)
+    criarBotao("Freeze", "❄️", function()
+        if targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") then
+            targetPlayer.Character.Humanoid.WalkSpeed, targetPlayer.Character.Humanoid.JumpPower = 0, 0
+        end
+    end, FrameJogador)
+    criarBotao("Unfreeze", "☀️", function()
+        if targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") then
+            targetPlayer.Character.Humanoid.WalkSpeed, targetPlayer.Character.Humanoid.JumpPower = 16, 50
+        end
+    end, FrameJogador)
+end
+
+for _, p in ipairs(game.Players:GetPlayers()) do criarPainelJogador(p) end
+game.Players.PlayerAdded:Connect(criarPainelJogador)
+game.Players.PlayerRemoving:Connect(function(plr)
+    local f = JogadoresScroll:FindFirstChild(plr.Name)
+    if f then f:Destroy() end
+end)
